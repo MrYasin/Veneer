@@ -37,9 +37,10 @@ class Marketplace:
 
 class Client:
 
-    def __init__(self, name, location, is_museum):
+    def __init__(self, name, location, is_museum, wallet):
         self.name = name
         self.is_museum = is_museum
+        self.wallet = float(wallet)
 
         if self.is_museum:
             self.location = location
@@ -47,13 +48,11 @@ class Client:
             self.location = "Private Collection"
 
     def sell_artwork(self, artwork, price):
-
         if artwork.owner == self:
             new_listing = Listing(artwork, price, self)
             veneer.add_listing(new_listing)
 
     def buy_artwork(self, artwork):
-
         if artwork.owner is not self:
             art_listing = None
             for item in veneer.listings:
@@ -62,10 +61,17 @@ class Client:
                     break
 
             if art_listing != None:
-                art_listing.art.owner = self
-                veneer.remove_listing(art_listing)
-                print("Art has been sold to {}, located in {}\n".format(
-                    self.name, self.location))
+                if self.wallet >= art_listing.price:
+                    # Make the transaction.
+                    escrow_amount = art_listing.price
+                    self.wallet -= escrow_amount   # charge the buyer
+                    art_listing.seller.wallet += escrow_amount  # pay the seller
+                    art_listing.art.owner = self
+                    veneer.remove_listing(art_listing)
+                    print("Art has been sold to {}, located in {}\n".format(
+                        self.name, self.location))
+                else:
+                    print("Insufficient funds.\n")
 
 
 class Listing:
@@ -79,99 +85,20 @@ class Listing:
         return "The art piece called '{}', is listed for sale for ${} by {}".format(self.art.title, self.price, self.seller.name)
 
 
-## CLASS INSTANCES ##
-veneer = Marketplace()
+if __name__ == "__main__":
+    # Init
+    veneer = Marketplace()
 
-edytta = Client("Edytta Halpirt", None, False)
+    edytta = Client("Edytta Halpirt", None, False, 15000)
+    moma = Client("The MOMA", "New York", True, 70000)
+    girl_with_mandolin = Art(
+        "Picasso, Pablo", "Girl with a Mandolin (Fanny Tellier)", "oil on canvas", 1910, edytta)
 
-moma = Client("The MOMA", "New York", True)
+    # Operations
+    edytta.sell_artwork(girl_with_mandolin, 60000)
+    veneer.show_listings()
+    moma.buy_artwork(girl_with_mandolin)
 
-girl_with_mandolin = Art(
-    "Picasso, Pablo", "Girl with a Mandolin (Fanny Tellier)", "oil on canvas", 1910, edytta)
-
-## TEST CODES ##
-
-# print(girl_with_mandolin)
-# print(edytta)
-# print(moma)
-
-#### FOR SELLING ####
-
-edytta.sell_artwork(girl_with_mandolin, 60000)
-
-veneer.show_listings()
-
-print("\n--------------------\n")  # EASIER SEPERATION
-
-#### FOR BUYING ####
-
-moma.buy_artwork(girl_with_mandolin)
-
-
-##### UPDATES? #####
-
-## Adding wallet ##
-
-"""
-
-
-class Client:
-
-    def __init__(self, name, location, is_museum, wallet):    #1 ADDED WALLET
-        self.name = name
-        self.is_museum = is_museum
-        
-        self.wallet = wallet            #1
-        
-        if self.is_museum:
-            self.location =location
-        else:
-            self.location = "Private Collection"
-
-    def sell_artwork(self, artwork, price):
-
-        if artwork.owner == self:
-            new_listing = Listing(artwork, price, self)
-            veneer.add_listing(new_listing)
-
-
-    def buy_artwork(self, artwork):
-
-        if artwork.owner is not self:
-            art_listing = None
-            for item in veneer.listings:
-                if item.art == artwork:
-                    art_listing = item
-                    break
-
-### FUNCTION WHICH YOU BUY THE ART ###
-
-            if art_listing != None:
-            
-                if self.wallet >= self. price     #2 to check if wallet is bigger than self.price
-            
-                art_listing.art.owner = self
-                veneer.remove_listing(art_listing)
-                print("Art has been sold to {}, located in {}\n".format(self.name, self.location))
-
-
-#3 ADDED WALLET BALANCES
-
-edytta = Client("Edytta Halpirt", None, False, 15000)   
-
-moma = Client("The MOMA", "New York", True, 20000)
-
-
-
-#### FOR SELLING ####
-
-edytta.sell_artwork(girl_with_mandolin, 60000)
-
-veneer.show_listings()
-
-#### FOR BUYING ####
-
-moma.buy_artwork(girl_with_mandolin)
-
-
-"""
+    # Status
+    print("{} has {} in their wallet.".format(edytta.name, edytta.wallet))
+    print("{} has {} in their wallet.".format(moma.name, moma.wallet))
