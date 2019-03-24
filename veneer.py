@@ -42,7 +42,7 @@ class Client:
         self.is_museum = is_museum
 
         if self.is_museum:
-            self.location =location
+            self.location = location
         else:
             self.location = "Private Collection"
 
@@ -51,7 +51,6 @@ class Client:
         if artwork.owner == self:
             new_listing = Listing(artwork, price, self)
             veneer.add_listing(new_listing)
-
 
     def buy_artwork(self, artwork):
 
@@ -65,9 +64,8 @@ class Client:
             if art_listing != None:
                 art_listing.art.owner = self
                 veneer.remove_listing(art_listing)
-                print("Art has been sold to {}, located in {}\n".format(self.name, self.location))
-
-
+                print("Art has been sold to {}, located in {}\n".format(
+                    self.name, self.location))
 
 
 class Listing:
@@ -81,17 +79,15 @@ class Listing:
         return "The art piece called '{}', is listed for sale for ${} by {}".format(self.art.title, self.price, self.seller.name)
 
 
-
-
 ## CLASS INSTANCES ##
-
 veneer = Marketplace()
 
 edytta = Client("Edytta Halpirt", None, False)
 
 moma = Client("The MOMA", "New York", True)
 
-girl_with_mandolin = Art("Picasso, Pablo", "Girl with a Mandolin (Fanny Tellier)", "oil on canvas", 1910, edytta)
+girl_with_mandolin = Art(
+    "Picasso, Pablo", "Girl with a Mandolin (Fanny Tellier)", "oil on canvas", 1910, edytta)
 
 ## TEST CODES ##
 
@@ -105,12 +101,11 @@ edytta.sell_artwork(girl_with_mandolin, 60000)
 
 veneer.show_listings()
 
-print("\n--------------------\n") ### EASIER SEPERATION
+print("\n--------------------\n")  # EASIER SEPERATION
 
 #### FOR BUYING ####
 
 moma.buy_artwork(girl_with_mandolin)
-
 
 
 ##### UPDATES? #####
@@ -180,12 +175,3 @@ moma.buy_artwork(girl_with_mandolin)
 
 
 """
-
-
-
-
-
-
-
-
-
